@@ -6,7 +6,7 @@ import scipy.ndimage as scim
 import scipy.ndimage.interpolation as sii
 import os
 import os.path as osp
-import cPickle as cp
+import pickle as cp
 #import Image
 from PIL import Image
 from poisson_reconstruct import blit_images
@@ -38,14 +38,14 @@ class Layer(object):
         elif color.ndim==3: #rgb image
             self.color = color.copy().astype('uint8')
         else:
-            print color.shape
+            print(color.shape)
             raise Exception("color datatype not understood")
 
 class FontColor(object):
 
     def __init__(self, col_file):
-        with open(col_file,'r') as f:
-            self.colorsRGB = cp.load(f)
+        with open(col_file,'rb') as f:
+            self.colorsRGB = cp.load(f, encoding="bytes")
         self.ncol = self.colorsRGB.shape[0]
 
         # convert color-means from RGB to LAB for better nearest neighbour
@@ -402,7 +402,7 @@ class Colorize(object):
 
         diff = np.linalg.norm(bg_px-txt_px,ord=None,axis=1)
         diff = np.percentile(diff,[10,30,50,70,90])
-        print "color diff percentile :", diff
+        print("color diff percentile :", diff)
         return diff, (bgo,txto)
 
     def color(self, bg_arr, text_arr, hs, place_order=None, pad=20):
@@ -425,7 +425,7 @@ class Colorize(object):
 
         # initialize the placement order:
         if place_order is None:
-            place_order = np.array(xrange(len(text_arr)))
+            place_order = np.array(range(len(text_arr)))
 
         rendered = []
         for i in place_order[::-1]:
